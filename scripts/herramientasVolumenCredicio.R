@@ -141,20 +141,27 @@ obtenerEnlacesDescarga <- function(enlaces_descarga, identificador) {
   for (enlace in enlaces) {
     indice <- match(enlace, enlaces)
     
-    head <- httr::HEAD(enlace)
+    response <- httr::HEAD(enlace)
+    
+    filename_temporal <-
+      response$headers$`content-disposition` %>%
+      sub(".*filename=\"([^\"]+)\".*", "\\1", .)
     
     nueva_fila <-
       data.frame(
         time = Sys.time(),
         link = enlace,
-        url = head$url,
-        status_code = head$status_code,
-        content_type = head$headers$`content-type`,
+        url = response$url,
+        filename =
+          ifelse(length(filename_temporal) > 0,
+                 filename_temporal, basename(response$url)),
+        status_code = response$status_code,
+        content_type = response$headers$`content-type`,
         last_modified =
-          ifelse(!is.null(head$headers$`last-modified`),
-            head$headers$`last-modified`, NA),
+          ifelse(!is.null(response$headers$`last-modified`),
+                 response$headers$`last-modified`, NA),
         content_length =
-          round(as.numeric(head$headers$`content-length`) / 2^20, 2)
+          round(as.numeric(response$headers$`content-length`) / 2^20, 2)
       )
     
     informacion <- informacion %>% dplyr::bind_rows(nueva_fila)
@@ -163,7 +170,7 @@ obtenerEnlacesDescarga <- function(enlaces_descarga, identificador) {
     barraProgreso(enlaces)
     cat("\033[1;32mObteniendo ruta de descarga...\033[0m\n")
     cat("Del vínculo:\n\t[", enlace, "]",
-        "\nse ha capturado la ruta de descarga:\n\t[", head$url, "].\n")
+        "\nse ha capturado la ruta de descarga:\n\t[", response$url, "].\n")
   }
   
   cat("\n\n\033[1mResumen:\033[0m\n")
