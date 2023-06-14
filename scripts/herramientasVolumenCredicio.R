@@ -258,29 +258,6 @@ xlsb2xlsx <- function(ruta_archivo_xlsb) {
 
 # Descarga----
 
-analisisVinculosPaginaWebSEPS <- function() {
-  
-  requerirPaquetes("dplyr","rvest")
-  
-  # protocolo_dominio <- "https://estadisticas.seps.gob.ec"
-  # ruta <- "/estadisticas-sfps/"
-  # link <- paste0(protocolo_dominio, ruta)
-  link <- "https://estadisticas.seps.gob.ec/index.php/estadisticas-sfps/"
-  selectorCSS_volumen_credito_mensual <- "#collapse_9" # verificado 2023/05/06
-  pagina <- rvest::read_html(link)
-  entorno_enlaces_descarga <-
-    pagina %>%
-    rvest::html_nodes(selectorCSS_volumen_credito_mensual)
-  enlaces_descarga <-
-    rvest::html_nodes(entorno_enlaces_descarga,"a") %>%
-    rvest::html_attr("href")
-  
-  cat("\n\033[1mEnlaces de descarga encontrados en la página:\033[0m [",link,"]\n")
-  print(enlaces_descarga)
-  
-  return(enlaces_descarga)
-}
-
 obtenerEnlacesDescarga <- function(enlaces_descarga, identificador) {
   
   requerirPaquetes("httr","dplyr")
@@ -466,6 +443,29 @@ descomprimirArchivosDirectorioZip <- function(origen, destino) {
 }
 
 # SEPS----
+
+analisisVinculosPaginaWebSEPS <- function() {
+  
+  requerirPaquetes("dplyr","rvest")
+  
+  # protocolo_dominio <- "https://estadisticas.seps.gob.ec"
+  # ruta <- "/estadisticas-sfps/"
+  # link <- paste0(protocolo_dominio, ruta)
+  link <- "https://estadisticas.seps.gob.ec/index.php/estadisticas-sfps/"
+  selectorCSS_volumen_credito_mensual <- "#collapse_9" # verificado 2023/05/06
+  pagina <- rvest::read_html(link)
+  entorno_enlaces_descarga <-
+    pagina %>%
+    rvest::html_nodes(selectorCSS_volumen_credito_mensual)
+  enlaces_descarga <-
+    rvest::html_nodes(entorno_enlaces_descarga,"a") %>%
+    rvest::html_attr("href")
+  
+  cat("\n\033[1mEnlaces de descarga encontrados en la página:\033[0m [",link,"]\n")
+  print(enlaces_descarga)
+  
+  return(enlaces_descarga)
+}
 
 gestorDescargasDescompresionSEPS <- function() {# Verificado en prueba individual 2023/06/05
   

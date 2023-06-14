@@ -1,31 +1,32 @@
-nombres_hojas_existentes <-
-  lapply(rutas_libros_seleccionados, readxl::excel_sheets) %>%
-  unlist() %>% unique() %>% sort()
 
 
-resumenBibliotecaLibros <- function(lista_data_frames) {
+rutas_libros <- rutas_libros_seleccionados
+
+ruta_directorio <- "data/Fuentes/SB/Volumen de Credito"
+
+resumenLibrosExcelDirectorio <- function(ruta_directorio) {
   requerirPaquetes("dplyr")
-  biblioteca_libros <- lista_data_frames
-  nombres_libros <- names(biblioteca_libros)
-  nombres_hojas <-
-    sapply(biblioteca_libros, function(df) attr(df, "nombre_hoja")) %>%
-    unname()
-  nombres_columnas_en_hojas <-
-    lapply(biblioteca_libros, names) %>% unlist() %>% unique() %>% sort()
   
-  resumen_biblioteca_libros <- data.frame(Libro = nombres_libros)
-  if ( length(nombres_hojas) == nrow(resumen_biblioteca_libros) ) {
-    resumen_biblioteca_libros$Hoja = nombres_hojas
-  }
-  resumen_biblioteca_libros$`Año` = gsub(".*(\\d{4}).*", "\\1", nombres_libros)
+  rutas_libros_excel <-
+    list.files(ruta_directorio, recursive = TRUE, full.names = TRUE)
+  nombres_libros_excel <- gsub("\\.[^.]*$", "", basename(rutas_libros_excel))
   
-  for (nombre_columna in nombres_columnas_en_hojas) {
-    resumen_biblioteca_libros[[nombre_columna]] <-
-      sapply(biblioteca_libros, function(df) {
-        ifelse(test = nombre_columna %in% names(df),
-               yes = class(df[[nombre_columna]]),
+  nombres_hojas_existentes <-
+    lapply(rutas_libros_excel, readxl::excel_sheets) %>%
+    unlist() %>% unique() %>% sort()
+  
+  resumen_libros_directorio <- data.frame(Libro = nombres_libros_excel)
+
+  resumen_libros_directorio$`Año` <-
+    gsub(".*(\\d{4}).*", "\\1", nombres_libros_excel)
+  
+  for (nombre_hoja in nombres_hojas_existentes) {
+    resumen_libros_directorio[[nombre_hoja]] <-
+      sapply(rutas_libros_excel, function(ruta) {
+        ifelse(test = nombre_hoja %in% readxl::excel_sheets(ruta),
+               yes = TRUE,
                no = "")
       })
   }
-  return(resumen_biblioteca_libros)
+  return(resumen_libros_directorio)
 }
