@@ -870,7 +870,7 @@ crearVolumenCreditoSEPS <- function() {# Verificado en prueba individual 2023/06
   return(tabla_concatenada)
 }
 
-# SB----
+# SB ----
 
 decargaDesdePortalEstudiosSB <- function(ruta_archivo_html) {
   
@@ -1296,7 +1296,7 @@ crearVolumenCreditoSB <- function() {
   #   agregarRUCenSB() %>%
   #   dplyr::select(FECHA, SEGMENTO, RUC, RAZON_SOCIAL, CODIGO, CUENTA, VALOR)
   
-  exportarResultadosCSV(volumen_credito_SB,"SB Volumen de Credito")
+  exportarResultadosCSV(tabla_concatenada,"SB Volumen de Credito")
   cat("\n\n  \033[1;34mDuración total del proceso \"Volumen de Credito SB\":",
       formatoTiempoHMS(difftime(Sys.time(), tic_general, units = "secs")), "\033[0m\n")
   
