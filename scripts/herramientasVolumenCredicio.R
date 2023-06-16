@@ -1189,9 +1189,25 @@ compilarHojasVolumenCreditoSB <- function(ruta_directorio = NULL) {
     requerirPaquetes("dplyr")
     nuevos_nombres_columnas <-
       dplyr::case_when(
-        names(data_frame) %in% c("ESTADO DE LA OPERACION", "ESTADO DE LA OPERACIÓN") ~ "ESTADO DE LA OPERACIÓN",
-        names(data_frame) %in% c("NUMERO DE OPERACIONES", "NÚMERO DE OPERACIONES") ~ "NÚMERO DE OPERACIONES",
-        names(data_frame) %in% c("TIPO DE OPERACION", "TIPO DE OPERACIÓN") ~ "TIPO DE OPERACIÓN",
+        names(data_frame) %in% c("ACTIVIDAD") ~ "Actividad",
+        names(data_frame) %in% c("CANTON") ~ "Cantón",
+        names(data_frame) %in% c("ENTIDAD") ~ "Entidad Financiera",
+        #names(data_frame) %in% c("ESTADO DE LA OPERACIÓN") ~ "Estado De La Operación",
+        names(data_frame) %in% c("ESTADO DE LA OPERACION", "ESTADO DE LA OPERACIÓN") ~ "Estado de Operación",
+        names(data_frame) %in% c("FECHA") ~ "Fecha",
+        names(data_frame) %in% c("MONTO OTORGADO") ~ "Valor",
+        #names(data_frame) %in% c("NÚMERO DE OPERACIONES") ~ "Número De Operaciones",
+        names(data_frame) %in% c("NUMERO DE OPERACIONES", "NÚMERO DE OPERACIONES") ~ "Número de Operaciones",
+        names(data_frame) %in% c("PROVINCIA") ~ "Provincia",
+        names(data_frame) %in% c("SECTOR") ~ "Sector",
+        names(data_frame) %in% c("SUBSECTOR") ~ "Subsector",
+        names(data_frame) %in% c("SUBSISTEMA") ~ "Segmento",
+        names(data_frame) %in% c("TIPO DE CREDITO") ~ "Tipo de Crédito",
+        #names(data_frame) %in% c("TIPO DE OPERACIÓN") ~ "Tipo De Operación",
+        names(data_frame) %in% c("TIPO DE OPERACION", "TIPO DE OPERACIÓN") ~ "Tipo de Operación",
+        # names(data_frame) %in% c("ESTADO DE LA OPERACION", "ESTADO DE LA OPERACIÓN") ~ "ESTADO DE LA OPERACIÓN",
+        # names(data_frame) %in% c("NUMERO DE OPERACIONES", "NÚMERO DE OPERACIONES") ~ "NÚMERO DE OPERACIONES",
+        # names(data_frame) %in% c("TIPO DE OPERACION", "TIPO DE OPERACIÓN") ~ "TIPO DE OPERACIÓN",
         TRUE ~ names(data_frame)
       )
     names(data_frame) <- nuevos_nombres_columnas
@@ -1303,5 +1319,40 @@ crearVolumenCreditoSB <- function() {
   return(volumen_credito_SB)
 }
 
+# SF----
 
-
+fusionarBalancesSBEstadosSEPSFinancieros <- function() {
+  
+  categorias_de_configuracion <-
+    c("LC_COLLATE", "LC_CTYPE", "LC_MONETARY", "LC_NUMERIC", "LC_TIME")
+  configuracion_local_proceso_R <-
+    sapply(categorias_de_configuracion, Sys.getlocale)
+  configuracion_BalancesEstadosFinancierosSFN <-
+    c(rep("Spanish_Ecuador.utf8",3),"C","Spanish_Ecuador.utf8")
+  mapply(Sys.setlocale,
+         categorias_de_configuracion, configuracion_BalancesEstadosFinancierosSFN)
+  num_max_impresiones_consola <- getOption("max.print")
+  options(max.print = 10000)
+  
+  tic_general <- Sys.time()
+  
+  requerirPaquetes()
+  
+  SB <- crearVolumenCreditoSB() # Verificado en prueba 2023/06/16
+  SEPS <- crearVolumenCreditoSEPS() # Verificado en prueba 2023/06/16
+  VC <- bind_rows(SEPS, SB)
+  
+  # exportarEstadosFinancierosSEPSmensualSIEVA() # Verificado en prueba 2023/06/16
+  # 
+  # exportarResultadosCSV(BEF,"Balances Estados Financieros")
+  # 
+  # ruta_dir_compartida <- "\\\\192.168.10.244\\inteligencia"
+  # exportarResultadosCSV(BEF,"Balances Estados Financieros",ruta_dir_compartida)
+  # cat("\n\n  \033[1;34mDuración total del proceso:",
+  #     formatoTiempoHMS(difftime(Sys.time(), tic_general, units = "secs")), "\033[0m\n\n")
+  # 
+  # options(max.print = num_max_impresiones_consola)
+  # mapply(Sys.setlocale, 
+  #        categorias_de_configuracion, configuracion_local_proceso_R)
+  # return(list(SB=SB,SEPS=SEPS,BEF=BEF))
+}
